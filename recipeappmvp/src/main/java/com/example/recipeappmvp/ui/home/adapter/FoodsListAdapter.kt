@@ -39,11 +39,11 @@ class FoodsListAdapter @Inject constructor() : RecyclerView.Adapter<FoodsListAda
         fun bind(item: Meal){
             binding.apply {
 
-                /*root.setOnClickListener {
+                root.setOnClickListener {
                     onItemClickListener?.let {
                         it(item)
                     }
-                }*/
+                }
 
                 itemFoodsImg.load(item.strMealThumb){
                     crossfade(true)
@@ -80,9 +80,9 @@ class FoodsListAdapter @Inject constructor() : RecyclerView.Adapter<FoodsListAda
     }
 
 
-    private var onItemClickListener : ((Meal, String) ->  Unit)? = null
+    private var onItemClickListener : ((Meal) ->  Unit)? = null
 
-    fun setOnClickListener(listener:((Meal,String) ->  Unit)) {
+    fun setOnClickListener(listener:((Meal) ->  Unit)) {
         onItemClickListener = listener
     }
 

@@ -9,6 +9,7 @@ import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
 import com.example.foodappmvp.utils.isNetworkAvailable
@@ -142,6 +143,11 @@ class HomeFragment : Fragment(), HomeContracts.View {
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
+        }
+
+        foodsListAdapter.setOnClickListener {
+            val direction = HomeFragmentDirections.homeToDetail(it.idMeal!!.toInt())
+            findNavController().navigate(direction)
         }
     }
 
