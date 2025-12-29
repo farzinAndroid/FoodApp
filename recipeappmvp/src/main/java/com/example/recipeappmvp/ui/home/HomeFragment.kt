@@ -1,5 +1,6 @@
 package com.example.recipeappmvp.ui.home
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -21,7 +22,10 @@ import com.example.recipeappmvp.ui.home.adapter.FoodsListAdapter
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.widget.textChanges
 import dagger.hilt.android.AndroidEntryPoint
+import greyfox.rxnetwork.RxNetwork
+import io.reactivex.Scheduler
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -48,6 +52,7 @@ class HomeFragment : Fragment(), HomeContracts.View {
         return binding.root
     }
 
+    @SuppressLint("CheckResult")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         //InitViews
@@ -71,6 +76,15 @@ class HomeFragment : Fragment(), HomeContracts.View {
 
             //Filter By letter Section
             createFilterFoodSpinnerList()
+
+            //check internet
+            RxNetwork.init(requireContext())
+                .observe()
+                .subscribeOn(Schedulers.io())
+                .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
+                .subscribe {
+                    internetError(it.isConnected)
+                }
         }
     }
 
@@ -81,7 +95,12 @@ class HomeFragment : Fragment(), HomeContracts.View {
         adapter.setDropDownViewResource(R.layout.item_spinner_list)
         binding.filterSpinner.adapter = adapter
         binding.filterSpinner.onItemSelectedListener = object : OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
                 presenter.getFoodsListByLetter(filters[position].toString())
 
             }
@@ -99,7 +118,8 @@ class HomeFragment : Fragment(), HomeContracts.View {
         binding.categoryList.apply {
             categoriesListAdapter.setData(categoriesList.categories)
             adapter = categoriesListAdapter
-            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL,false)
+            layoutManager =
+                LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
         }
 
@@ -111,15 +131,16 @@ class HomeFragment : Fragment(), HomeContracts.View {
     override fun showFoodsList(foodsList: ResponseFoodList) {
 
 
-            binding.foodsList.visibility = View.VISIBLE
-            binding.homeDisLay.visibility = View.GONE
+        binding.foodsList.visibility = View.VISIBLE
+        binding.homeDisLay.visibility = View.GONE
 
 
 
         binding.foodsList.apply {
             foodsListAdapter.setData(foodsList.meals!!)
             adapter = foodsListAdapter
-            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL,false)
+            layoutManager =
+                LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
         }
     }
@@ -150,10 +171,10 @@ class HomeFragment : Fragment(), HomeContracts.View {
 
     override fun showFoodsListLoading(isLoading: Boolean) {
         binding.apply {
-            if (isLoading){
+            if (isLoading) {
                 homeFoodsLoading.visibility = View.VISIBLE
                 foodsList.visibility = View.GONE
-            }else{
+            } else {
                 homeFoodsLoading.visibility = View.GONE
                 foodsList.visibility = View.VISIBLE
             }
@@ -165,6 +186,23 @@ class HomeFragment : Fragment(), HomeContracts.View {
     }
 
     override fun internetError(hasInternet: Boolean) {
+        binding.apply {
+            if (!hasInternet){
+                homeContent.visibility = View.GONE
+                homeDisLay.visibility = View.VISIBLE
+
+                disconnectLay.disImg.setImageResource(com.example.ui.R.drawable.disconnect)
+                disconnectLay.disTxt.text = getString(com.example.ui.R.string.checkInternet)
+            }else{
+                homeContent.visibility = View.VISIBLE
+                homeDisLay.visibility = View.GONE
+
+                presenter.getCategoriesList()
+                presenter.getFoodsListByLetter("A")
+            }
+
+        }
+
     }
 
     override fun serverError(message: String) {
