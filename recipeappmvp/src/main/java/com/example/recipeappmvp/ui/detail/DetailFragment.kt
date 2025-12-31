@@ -21,6 +21,7 @@ import greyfox.rxnetwork.RxNetwork
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 import androidx.core.net.toUri
+import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
 import org.json.JSONArray
 import org.json.JSONObject
@@ -66,6 +67,10 @@ class DetailFragment : Fragment(), DetailContracts.View {
             .subscribe {
                 internetError(it.isConnected)
             }
+        //back click
+        binding.backBtn.setOnClickListener {
+            findNavController().popBackStack()
+        }
 
     }
 
