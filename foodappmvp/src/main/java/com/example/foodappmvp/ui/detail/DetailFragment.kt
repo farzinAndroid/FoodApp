@@ -3,15 +3,18 @@ package com.example.foodappmvp.ui.detail
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import coil.load
 import com.example.foodappmvp.data.model.ResponseFoodList
+import com.example.foodappmvp.data.model.database.FoodEntity
 import com.example.foodappmvp.databinding.FragmentDetailBinding
 import com.example.foodappmvp.utils.isNetworkAvailable
 import com.example.foodappmvp.utils.showSnackBar
@@ -31,6 +34,9 @@ class DetailFragment : Fragment(), DetailContracts.View {
 
     @Inject
     lateinit var presenter: DetailPresenter
+
+    @Inject
+    lateinit var foodEntity: FoodEntity
 
 
     private var foodId = 0
@@ -74,7 +80,20 @@ class DetailFragment : Fragment(), DetailContracts.View {
 
     override fun showDetail(response: ResponseFoodList) {
         binding.apply {
+
+
+
             response.meals?.get(0)?.let {itMeal->
+
+                //favorites
+                foodEntity.apply {
+                    id = itMeal.idMeal.toString().toInt()
+                    image = itMeal.strMealThumb.toString()
+                    title = itMeal.strMeal.toString()
+                }
+                presenter.isFoodExists(itMeal.idMeal!!.toInt())
+                //
+
                 coverImg.load(itMeal.strMealThumb){
                     crossfade(true)
                     crossfade(500)
@@ -126,6 +145,26 @@ class DetailFragment : Fragment(), DetailContracts.View {
                         measureTxt.append("$measures\n")
                     }
                 }
+
+            }
+        }
+    }
+
+    override fun updateFavorite(isFavorite: Boolean) {
+        binding.apply {
+            favBtn.setOnClickListener {
+                Log.e("TAG", "updateFavorite: $isFavorite" )
+                if (isFavorite){
+                    presenter.deleteFood(foodEntity)
+                }else{
+                    presenter.saveFood(foodEntity)
+                }
+            }
+
+            if (isFavorite){
+                favBtn.setColorFilter(ContextCompat.getColor(requireContext(),R.color.tartOrange))
+            }else{
+                favBtn.setColorFilter(ContextCompat.getColor(requireContext(),R.color.black))
 
             }
         }

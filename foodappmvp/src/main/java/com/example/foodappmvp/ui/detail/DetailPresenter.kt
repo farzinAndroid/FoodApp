@@ -2,7 +2,11 @@ package com.example.foodappmvp.ui.detail
 
 import com.example.foodappmvp.utils.applyIoScheduler
 import com.example.foodappmvp.base.BasePresenterImpl
+import com.example.foodappmvp.data.model.database.FoodEntity
 import com.example.foodappmvp.data.repository.DetailRepository
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
 
 class DetailPresenter @Inject constructor(
@@ -37,6 +41,32 @@ class DetailPresenter @Inject constructor(
         }
     }
 
+    override fun saveFood(foodEntity: FoodEntity) {
+        disposable = repository.saveFood(foodEntity)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                view.updateFavorite(true)
+            }
+    }
+
+    override fun deleteFood(foodEntity: FoodEntity) {
+        disposable = repository.deleteFood(foodEntity)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                view.updateFavorite(false)
+            }
+    }
+
+    override fun isFoodExists(foodId: Int) {
+        disposable = repository.isFoodExist(foodId)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                view.updateFavorite(it)
+            }
+    }
 
 
 }

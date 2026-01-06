@@ -14,7 +14,6 @@ class DetailRepository @Inject constructor(
 
     fun saveFood(food: FoodEntity) = dao.saveFood(food)
     fun deleteFood(food: FoodEntity) = dao.deleteFood(food)
-    fun gtAllFoods() = dao.getAllFoods()
     fun isFoodExist(id: Int) = dao.isFoodExist(id)
 
 }
