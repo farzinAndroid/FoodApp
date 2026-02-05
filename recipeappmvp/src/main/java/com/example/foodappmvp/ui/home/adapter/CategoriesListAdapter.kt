@@ -7,8 +7,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.foodappmvp.data.model.ResponseCategoriesList.Category
-import com.example.foodappmvp.databinding.CategoryItemBinding
 import com.example.ui.R
+import com.example.ui.databinding.CategoryItemBinding
 import javax.inject.Inject
 
 class CategoriesListAdapter @Inject constructor() : RecyclerView.Adapter<CategoriesListAdapter.MyViewHolder>()  {

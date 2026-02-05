@@ -11,7 +11,8 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/foodappmvp" />
+            <option value="$PROJECT_DIR$/recipeappmvp" />
+            <option value="$PROJECT_DIR$/recipeappmvvm" />
             <option value="$PROJECT_DIR$/ui" />
           </set>
         </option>

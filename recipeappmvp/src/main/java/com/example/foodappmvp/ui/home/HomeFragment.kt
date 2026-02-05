@@ -90,8 +90,8 @@ class HomeFragment : Fragment(), HomeContracts.View {
 
     private fun createFilterFoodSpinnerList() {
         val filters = listOf('A'..'Z').flatten()
-        val adapter = ArrayAdapter(requireContext(), com.example.foodappmvp.R.layout.item_spinner, filters)
-        adapter.setDropDownViewResource(com.example.foodappmvp.R.layout.item_spinner_list)
+        val adapter = ArrayAdapter(requireContext(), R.layout.item_spinner, filters)
+        adapter.setDropDownViewResource(R.layout.item_spinner_list)
         binding.filterSpinner.adapter = adapter
         binding.filterSpinner.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(

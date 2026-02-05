@@ -23,3 +23,4 @@ rootProject.name = "RecipeApp"
 include(":app")
 include(":recipeappmvp")
 include(":ui")
+include(":recipeappmvvm")

@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.foodappmvp.data.model.ResponseFoodList.Meal
-import com.example.foodappmvp.databinding.FoodItemBinding
+import com.example.ui.databinding.FoodItemBinding
 import javax.inject.Inject
 
 class FoodsListAdapter @Inject constructor() :
