@@ -21,5 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "RecipeApp"
 include(":app")
-include(":foodappmvp")
+include(":recipeappmvp")
 include(":ui")
