@@ -5,10 +5,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import coil.load
 import com.example.recipeappmvvm.R
 import com.example.recipeappmvvm.databinding.FragmentHomeBinding
+import com.example.recipeappmvvm.utils.setupSpinnerListWithAdapter
 import com.example.recipeappmvvm.viewmodel.HomeViewmodel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -26,7 +28,7 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        _binding = FragmentHomeBinding.inflate(layoutInflater,container,false)
+        _binding = FragmentHomeBinding.inflate(layoutInflater, container, false)
         return binding?.root
     }
 
@@ -34,6 +36,7 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding?.apply {
+            //random food
             homeViewmodel.getRandomFoodsList()
             homeViewmodel.randomFoodsListLivedata.observe(viewLifecycleOwner) {
                 it[0].let { meal ->
@@ -42,6 +45,18 @@ class HomeFragment : Fragment() {
                         crossfade(500)
                     }
                 }
+            }
+
+
+            //Filters
+            homeViewmodel.loadCharsFilterList()
+            homeViewmodel.charsFilterList.observe(viewLifecycleOwner) {
+                filterSpinner.setupSpinnerListWithAdapter(
+                    list = it,
+                    callback = { letter ->
+                        Toast.makeText(requireContext(), letter, Toast.LENGTH_LONG).show()
+                    }
+                )
             }
         }
     }

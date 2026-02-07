@@ -18,8 +18,15 @@ class HomeViewmodel @Inject constructor(private val repository: HomeRepository) 
 
     fun getRandomFoodsList() = viewModelScope.launch {
         repository.getRandomFood().collect {
-            randomFoodsListLivedata.postValue(it.body()!!.meals)
+            randomFoodsListLivedata.postValue(it.body()!!.meals!!)
         }
+    }
+
+
+    val charsFilterList = MutableLiveData<MutableList<Char>>()
+    fun loadCharsFilterList() = viewModelScope.launch {
+        val filters = listOf('A'..'Z').flatten().toMutableList()
+        charsFilterList.postValue(filters)
     }
 
 }
