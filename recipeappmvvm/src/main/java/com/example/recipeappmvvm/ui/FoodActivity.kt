@@ -7,7 +7,9 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.recipeappmvvm.R
 import com.example.recipeappmvvm.databinding.ActivityFoodBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class FoodActivity : AppCompatActivity() {
 
     private var _binding : ActivityFoodBinding?=null

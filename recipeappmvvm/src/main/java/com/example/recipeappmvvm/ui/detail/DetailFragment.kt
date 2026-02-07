@@ -8,8 +8,10 @@ import android.view.ViewGroup
 import com.example.recipeappmvvm.R
 import com.example.recipeappmvvm.databinding.FragmentDetailBinding
 import com.example.recipeappmvvm.databinding.FragmentFavoriteBinding
+import dagger.hilt.android.AndroidEntryPoint
 
 
+@AndroidEntryPoint
 class DetailFragment : Fragment() {
     private var _binding : FragmentDetailBinding? = null
     private val binding get() = _binding

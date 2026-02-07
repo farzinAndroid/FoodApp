@@ -8,7 +8,9 @@ import android.view.ViewGroup
 import com.example.recipeappmvvm.R
 import com.example.recipeappmvvm.databinding.FragmentFavoriteBinding
 import com.example.recipeappmvvm.databinding.FragmentHomeBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class FavoriteFragment : Fragment() {
 
     private var _binding : FragmentFavoriteBinding? = null
