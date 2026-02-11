@@ -6,6 +6,7 @@ import com.example.recipeappmvvm.data.model.remote.ResponseFoodList
 import com.example.recipeappmvvm.data.remote.ApiServices
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import retrofit2.Response
@@ -13,32 +14,116 @@ import javax.inject.Inject
 
 class HomeRepository @Inject constructor(private val api: ApiServices) {
 
-    suspend fun getRandomFood() : Flow<Response<ResponseFoodList>>{
+    fun getRandomFood(): Flow<Response<ResponseFoodList>> {
         return flow {
             emit(api.getRandomFood())
         }.flowOn(Dispatchers.IO)
     }
 
 
-    suspend fun getCategoriesFoodList() : Flow<MyResponse<ResponseCategoriesList>> {
+    fun getCategoriesFoodList(): Flow<MyResponse<ResponseCategoriesList>> {
         return flow {
             emit(MyResponse.loading())
 
-            when(api.getCategoriesFoodList().code()){
-                in 200..202->{
+            when (api.getCategoriesFoodList().code()) {
+                in 200..202 -> {
                     emit(MyResponse.success(api.getCategoriesFoodList().body()))
                 }
-                422->{
+
+                422 -> {
                     emit(MyResponse.error("Error"))
                 }
-                in 400..499->{
+
+                in 400..499 -> {
                     emit(MyResponse.error("Error"))
                 }
-                in 500..599->{
+
+                in 500..599 -> {
                     emit(MyResponse.error("Error"))
                 }
             }
         }
+            .flowOn(Dispatchers.IO)
+            .catch { emit(MyResponse.error(it.message.toString())) }
+    }
+
+    fun getFoodListByLetter(letter: String): Flow<MyResponse<ResponseFoodList>> {
+        return flow {
+            emit(MyResponse.loading())
+
+            when (api.getFoodListByLetter(letter).code()) {
+                in 200..202 -> {
+                    emit(MyResponse.success(api.getFoodListByLetter(letter).body()))
+                }
+
+                422 -> {
+                    emit(MyResponse.error("Error"))
+                }
+
+                in 400..499 -> {
+                    emit(MyResponse.error("Error"))
+                }
+
+                in 500..599 -> {
+                    emit(MyResponse.error("Error"))
+                }
+            }
+        }
+            .flowOn(Dispatchers.IO)
+            .catch { emit(MyResponse.error(it.message.toString())) }
+    }
+
+
+    fun searchFoods(search: String): Flow<MyResponse<ResponseFoodList>> {
+        return flow {
+            emit(MyResponse.loading())
+
+            when (api.searchFoodList(search).code()) {
+                in 200..202 -> {
+                    emit(MyResponse.success(api.searchFoodList(search).body()))
+                }
+
+                422 -> {
+                    emit(MyResponse.error("Error"))
+                }
+
+                in 400..499 -> {
+                    emit(MyResponse.error("Error"))
+                }
+
+                in 500..599 -> {
+                    emit(MyResponse.error("Error"))
+                }
+            }
+        }
+            .flowOn(Dispatchers.IO)
+            .catch { emit(MyResponse.error(it.message.toString())) }
+    }
+
+    fun getFoodListByCategory(category: String): Flow<MyResponse<ResponseFoodList>> {
+        return flow {
+            emit(MyResponse.loading())
+
+            when (api.getFoodsByCategory(category).code()) {
+                in 200..202 -> {
+                    emit(MyResponse.success(api.getFoodsByCategory(category).body()))
+                }
+
+                422 -> {
+                    emit(MyResponse.error("Error"))
+                }
+
+                in 400..499 -> {
+                    emit(MyResponse.error("Error"))
+                }
+
+                in 500..599 -> {
+                    emit(MyResponse.error("Error"))
+                }
+            }
+        }
+            .flowOn(Dispatchers.IO)
+            .catch { emit(MyResponse.error(it.message.toString())) }
     }
 
 }

@@ -2,16 +2,15 @@ package com.example.recipeappmvvm.ui.home
 
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.widget.addTextChangedListener
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import coil.load
-import com.example.recipeappmvvm.R
 import com.example.recipeappmvvm.data.model.remote.MyResponse
 import com.example.recipeappmvvm.databinding.FragmentHomeBinding
 import com.example.recipeappmvvm.utils.setVisibility
@@ -32,6 +31,10 @@ class HomeFragment : Fragment() {
 
     @Inject
     lateinit var categoryAdapter: CategoriesAdapter
+
+
+    @Inject
+    lateinit var foodsListAdapter: FoodsListAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,6 +67,7 @@ class HomeFragment : Fragment() {
                 filterSpinner.setupSpinnerListWithAdapter(
                     list = it,
                     callback = { letter ->
+                        homeViewmodel.getFoodListByLetter(letter)
                         Toast.makeText(requireContext(), letter, Toast.LENGTH_LONG).show()
                     }
                 )
@@ -75,12 +79,12 @@ class HomeFragment : Fragment() {
             homeViewmodel.categoriesList.observe(viewLifecycleOwner) {
                 when (it.status) {
                     MyResponse.Status.LOADING -> {
-                        Log.e("TAG","Loading")
+                        Log.e("TAG", "Loading")
                         homeCategoryLoading.setVisibility(true, categoryList)
                     }
 
                     MyResponse.Status.SUCCESS -> {
-                        Log.e("TAG","Success")
+                        Log.e("TAG", "Success")
                         homeCategoryLoading.setVisibility(false, categoryList)
                         categoryAdapter.setData(it.data!!.categories)
                         categoryList.setupRecyclerView(
@@ -90,12 +94,53 @@ class HomeFragment : Fragment() {
                             ),
                             adapter = categoryAdapter
                         )
+
                     }
 
                     MyResponse.Status.ERROR -> {
-                        Log.e("TAG","Error")
+                        Log.e("TAG", "Error")
                         homeCategoryLoading.setVisibility(false, categoryList)
                         Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            categoryAdapter.setOnItemClickListener {
+                homeViewmodel.getFoodsListByCategory(it.strCategory.toString())
+            }
+
+
+            //Foods list by letter
+            homeViewmodel.getFoodListByLetter("A")
+            homeViewmodel.foodsList.observe(viewLifecycleOwner) {
+                when (it.status) {
+                    MyResponse.Status.LOADING -> {
+                        homeFoodsLoading.setVisibility(true, foodsList)
+                    }
+
+                    MyResponse.Status.SUCCESS -> {
+                        homeFoodsLoading.setVisibility(false, foodsList)
+                        foodsListAdapter.setData(it.data?.meals!!)
+                        foodsList.setupRecyclerView(
+                            layoutManager = LinearLayoutManager(
+                                requireContext(),
+                                LinearLayoutManager.HORIZONTAL, false
+                            ),
+                            adapter = foodsListAdapter
+                        )
+                    }
+
+                    MyResponse.Status.ERROR -> {
+                        homeFoodsLoading.setVisibility(true, foodsList)
+                    }
+                }
+            }
+
+
+            //Search
+            searchEdt.addTextChangedListener {text->
+                text?.length?.let { len ->
+                    if (len > 2){
+                        homeViewmodel.searchFoods(text.toString())
                     }
                 }
             }
