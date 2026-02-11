@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -13,10 +14,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
 import com.example.recipeappmvvm.data.model.remote.MyResponse
 import com.example.recipeappmvvm.databinding.FragmentHomeBinding
+import com.example.recipeappmvvm.utils.CheckConnection
+import com.example.recipeappmvvm.utils.PageState
 import com.example.recipeappmvvm.utils.setVisibility
 import com.example.recipeappmvvm.utils.setupRecyclerView
 import com.example.recipeappmvvm.utils.setupSpinnerListWithAdapter
 import com.example.recipeappmvvm.viewmodel.HomeViewmodel
+import com.example.ui.R
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -35,6 +39,9 @@ class HomeFragment : Fragment() {
 
     @Inject
     lateinit var foodsListAdapter: FoodsListAdapter
+
+    @Inject
+    lateinit var checkConnection : CheckConnection
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -119,14 +126,22 @@ class HomeFragment : Fragment() {
 
                     MyResponse.Status.SUCCESS -> {
                         homeFoodsLoading.setVisibility(false, foodsList)
-                        foodsListAdapter.setData(it.data?.meals!!)
-                        foodsList.setupRecyclerView(
-                            layoutManager = LinearLayoutManager(
-                                requireContext(),
-                                LinearLayoutManager.HORIZONTAL, false
-                            ),
-                            adapter = foodsListAdapter
-                        )
+                        if (it.data?.meals != null){
+                            if (it.data.meals.isNotEmpty()){
+                                checkPageState(false, PageState.SUCCESS)
+                                foodsListAdapter.setData(it.data.meals)
+                                foodsList.setupRecyclerView(
+                                    layoutManager = LinearLayoutManager(
+                                        requireContext(),
+                                        LinearLayoutManager.HORIZONTAL, false
+                                    ),
+                                    adapter = foodsListAdapter
+                                )
+                            }
+                        }else{
+                            checkPageState(true, PageState.EMPTY)
+                        }
+
                     }
 
                     MyResponse.Status.ERROR -> {
@@ -144,7 +159,39 @@ class HomeFragment : Fragment() {
                     }
                 }
             }
+
+            //Check Internet
+            checkConnection.observe(viewLifecycleOwner){
+                if (it){
+                    checkPageState(false, PageState.SUCCESS)
+                }else{
+                    checkPageState(true, PageState.NETWORK_ERROR)
+                }
+            }
         }
     }
+
+
+    fun checkPageState(error: Boolean,pageState: PageState){
+         binding?.apply {
+             if (error){
+                 when(pageState){
+                     PageState.EMPTY -> {
+                         disconnectLay.disImg.setImageResource(R.drawable.box)
+                         disconnectLay.disTxt.text = getString(R.string.emptyList)
+                     }
+                     PageState.NETWORK_ERROR -> {
+                         disconnectLay.disImg.setImageResource(R.drawable.disconnect)
+                         disconnectLay.disTxt.text = getString(R.string.checkInternet)
+                     }
+                     else -> {}
+                 }
+             }else{
+                 homeDisLay.setVisibility(false,homeContent)
+             }
+         }
+    }
+
+
 
 }

@@ -21,7 +21,7 @@ class FavoriteFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        _binding = FragmentFavoriteBinding.inflate(layoutInflater)
+        _binding = FragmentFavoriteBinding.inflate(layoutInflater, container, false)
         return binding?.root
     }
 

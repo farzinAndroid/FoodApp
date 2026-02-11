@@ -31,7 +31,7 @@ fun Spinner.setupSpinnerListWithAdapter(list: MutableList<out Any>, callback: (S
 
 }
 
-fun ProgressBar.setVisibility(isLoading: Boolean, viewContainer: View) {
+fun View.setVisibility(isLoading: Boolean, viewContainer: View) {
     if (isLoading) {
         this.visibility = View.VISIBLE
         viewContainer.visibility = View.GONE
