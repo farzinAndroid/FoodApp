@@ -10,10 +10,12 @@ import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
 import com.example.recipeappmvvm.data.model.remote.MyResponse
 import com.example.recipeappmvvm.databinding.FragmentHomeBinding
+import com.example.recipeappmvvm.ui.detail.DetailFragment
 import com.example.recipeappmvvm.utils.CheckConnection
 import com.example.recipeappmvvm.utils.PageState
 import com.example.recipeappmvvm.utils.setVisibility
@@ -167,6 +169,13 @@ class HomeFragment : Fragment() {
                 }else{
                     checkPageState(true, PageState.NETWORK_ERROR)
                 }
+            }
+
+
+            //Send meal id to detail fragment
+            foodsListAdapter.setOnClickListener {
+                val direction = HomeFragmentDirections.homeToDetail(it.idMeal!!.toInt())
+                findNavController().navigate(direction)
             }
         }
     }

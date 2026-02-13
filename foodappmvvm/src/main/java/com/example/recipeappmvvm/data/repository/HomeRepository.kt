@@ -29,18 +29,6 @@ class HomeRepository @Inject constructor(private val api: ApiServices) {
                 in 200..202 -> {
                     emit(MyResponse.success(api.getCategoriesFoodList().body()))
                 }
-
-                422 -> {
-                    emit(MyResponse.error("Error"))
-                }
-
-                in 400..499 -> {
-                    emit(MyResponse.error("Error"))
-                }
-
-                in 500..599 -> {
-                    emit(MyResponse.error("Error"))
-                }
             }
         }
             .flowOn(Dispatchers.IO)
@@ -54,18 +42,6 @@ class HomeRepository @Inject constructor(private val api: ApiServices) {
             when (api.getFoodListByLetter(letter).code()) {
                 in 200..202 -> {
                     emit(MyResponse.success(api.getFoodListByLetter(letter).body()))
-                }
-
-                422 -> {
-                    emit(MyResponse.error("Error"))
-                }
-
-                in 400..499 -> {
-                    emit(MyResponse.error("Error"))
-                }
-
-                in 500..599 -> {
-                    emit(MyResponse.error("Error"))
                 }
             }
         }
@@ -82,18 +58,6 @@ class HomeRepository @Inject constructor(private val api: ApiServices) {
                 in 200..202 -> {
                     emit(MyResponse.success(api.searchFoodList(search).body()))
                 }
-
-                422 -> {
-                    emit(MyResponse.error("Error"))
-                }
-
-                in 400..499 -> {
-                    emit(MyResponse.error("Error"))
-                }
-
-                in 500..599 -> {
-                    emit(MyResponse.error("Error"))
-                }
             }
         }
             .flowOn(Dispatchers.IO)
@@ -107,18 +71,6 @@ class HomeRepository @Inject constructor(private val api: ApiServices) {
             when (api.getFoodsByCategory(category).code()) {
                 in 200..202 -> {
                     emit(MyResponse.success(api.getFoodsByCategory(category).body()))
-                }
-
-                422 -> {
-                    emit(MyResponse.error("Error"))
-                }
-
-                in 400..499 -> {
-                    emit(MyResponse.error("Error"))
-                }
-
-                in 500..599 -> {
-                    emit(MyResponse.error("Error"))
                 }
             }
         }
