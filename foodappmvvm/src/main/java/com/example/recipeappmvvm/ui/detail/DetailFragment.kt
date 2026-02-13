@@ -1,11 +1,13 @@
 package com.example.recipeappmvvm.ui.detail
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavArgs
@@ -14,6 +16,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
 import com.example.recipeappmvvm.R
+import com.example.recipeappmvvm.data.model.database.FoodEntity
 import com.example.recipeappmvvm.data.model.remote.MyResponse
 import com.example.recipeappmvvm.databinding.FragmentDetailBinding
 import com.example.recipeappmvvm.databinding.FragmentFavoriteBinding
@@ -22,6 +25,7 @@ import com.example.recipeappmvvm.utils.PageState
 import com.example.recipeappmvvm.utils.setVisibility
 import com.example.recipeappmvvm.utils.setupRecyclerView
 import com.example.recipeappmvvm.viewmodel.DetailViewmodel
+import com.example.recipeappmvvm.viewmodel.FavoriteViewmodel
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import org.json.JSONObject
@@ -31,18 +35,22 @@ import kotlin.getValue
 
 @AndroidEntryPoint
 class DetailFragment : Fragment() {
-    private var _binding : FragmentDetailBinding? = null
+    private var _binding: FragmentDetailBinding? = null
     private val binding get() = _binding
 
 
     @Inject
-    lateinit var checkConnection : CheckConnection
+    lateinit var checkConnection: CheckConnection
+
+    @Inject
+    lateinit var foodEntity: FoodEntity
 
 
     private val navArgs: DetailFragmentArgs by navArgs()
     private var foodId = 0
+    private var isFoodExists: Boolean = false
 
-    private val detailViewmodel : DetailViewmodel by viewModels<DetailViewmodel>()
+    private val detailViewmodel: DetailViewmodel by viewModels<DetailViewmodel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -65,10 +73,10 @@ class DetailFragment : Fragment() {
             }
 
             //Check Internet
-            checkConnection.observe(viewLifecycleOwner){
-                if (it){
+            checkConnection.observe(viewLifecycleOwner) {
+                if (it) {
                     checkPageState(false, PageState.SUCCESS)
-                }else{
+                } else {
                     checkPageState(true, PageState.NETWORK_ERROR)
                 }
             }
@@ -76,29 +84,53 @@ class DetailFragment : Fragment() {
             //details
             foodId = navArgs.foodId
             detailViewmodel.getFoodDetails(foodId)
-            detailViewmodel.foodDetails.observe(viewLifecycleOwner){
-                when(it.status){
+            detailViewmodel.foodDetails.observe(viewLifecycleOwner) {
+                when (it.status) {
                     MyResponse.Status.LOADING -> {
                         loading.setVisibility(true, detailContent)
                     }
 
                     MyResponse.Status.SUCCESS -> {
                         loading.setVisibility(false, detailContent)
-                        if (it.data?.meals != null){
-                            if (it.data.meals.isNotEmpty()){
+                        if (it.data?.meals != null) {
+                            if (it.data.meals.isNotEmpty()) {
                                 checkPageState(false, PageState.SUCCESS)
 
                                 val itMeal = it.data.meals[0]
-//                                //favorites
-//                                foodEntity.apply {
-//                                    id = itMeal.idMeal.toString().toInt()
-//                                    image = itMeal.strMealThumb.toString()
-//                                    title = itMeal.strMeal.toString()
-//                                }
-//                                presenter.isFoodExists(itMeal.idMeal!!.toInt())
-//                                //
+                                //favorites
+                                foodEntity.apply {
+                                    id = itMeal.idMeal.toString().toInt()
+                                    image = itMeal.strMealThumb.toString()
+                                    title = itMeal.strMeal.toString()
+                                }
+                                detailViewmodel.isFoodExists(foodId)
+                                detailViewmodel.isFoodExists.observe(viewLifecycleOwner) { isExists ->
+                                    isFoodExists = isExists
+                                    if (isExists) {
+                                        favBtn.setColorFilter(
+                                            ContextCompat.getColor(
+                                                requireContext(),
+                                                com.example.ui.R.color.tartOrange
+                                            )
+                                        )
+                                    } else {
+                                        favBtn.setColorFilter(
+                                            ContextCompat.getColor(
+                                                requireContext(),
+                                                com.example.ui.R.color.black
+                                            )
+                                        )
+                                    }
+                                }
 
-                                coverImg.load(itMeal.strMealThumb){
+
+
+                                favBtn.setOnClickListener {
+                                    saveFoodToFavorites(isFoodExists)
+                                }
+
+
+                                coverImg.load(itMeal.strMealThumb) {
                                     crossfade(true)
                                     crossfade(500)
                                 }
@@ -106,26 +138,25 @@ class DetailFragment : Fragment() {
                                 categoryTxt.text = itMeal.strCategory
                                 areaTxt.text = itMeal.strArea
 
-                                if (itMeal.strSource != null){
+                                if (itMeal.strSource != null) {
                                     sourceImg.visibility = View.VISIBLE
-                                    sourceImg.setOnClickListener{
+                                    sourceImg.setOnClickListener {
                                         Intent(Intent.ACTION_VIEW, itMeal.strSource.toUri()).apply {
                                             startActivity(this)
                                         }
                                     }
-                                }else{
+                                } else {
                                     sourceImg.visibility = View.GONE
                                 }
 
-                                if (itMeal.strYoutube != null){
+                                if (itMeal.strYoutube != null) {
                                     youtubeImg.visibility = View.VISIBLE
-                                }else{
+                                } else {
                                     youtubeImg.visibility = View.GONE
                                 }
 
                                 titleTxt.text = itMeal.strMeal
                                 descTxt.text = itMeal.strInstructions
-
 
 
                                 //JsonArray
@@ -134,18 +165,18 @@ class DetailFragment : Fragment() {
                                 val meal = meals.getJSONObject(0)
 
                                 //Ingredients
-                                for (i in 1..15){
+                                for (i in 1..15) {
                                     val ingredients = meal.getString("strIngredient$i")
-                                    if (ingredients.isNullOrEmpty().not()){
+                                    if (ingredients.isNullOrEmpty().not()) {
                                         ingredientsTxt.append("$ingredients\n")
                                     }
                                 }
 
 
                                 //Measures
-                                for (i in 1..15){
+                                for (i in 1..15) {
                                     val measures = meal.getString("strMeasure$i")
-                                    if (measures.isNullOrEmpty().not()){
+                                    if (measures.isNullOrEmpty().not()) {
                                         measureTxt.append("$measures\n")
                                     }
                                 }
@@ -166,22 +197,47 @@ class DetailFragment : Fragment() {
     }
 
 
-    fun checkPageState(error: Boolean,pageState: PageState){
+    fun saveFoodToFavorites(isFoodExists: Boolean) {
         binding?.apply {
-            if (error){
-                when(pageState){
+            if (isFoodExists) {
+                favBtn.setColorFilter(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        com.example.ui.R.color.black
+                    )
+                )
+                detailViewmodel.deleteFood(foodEntity)
+            } else {
+                favBtn.setColorFilter(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        com.example.ui.R.color.tartOrange
+                    )
+                )
+                detailViewmodel.saveFood(foodEntity)
+            }
+        }
+    }
+
+
+    fun checkPageState(error: Boolean, pageState: PageState) {
+        binding?.apply {
+            if (error) {
+                when (pageState) {
                     PageState.EMPTY -> {
                         disconnectLay.disImg.setImageResource(com.example.ui.R.drawable.box)
                         disconnectLay.disTxt.text = getString(com.example.ui.R.string.emptyList)
                     }
+
                     PageState.NETWORK_ERROR -> {
                         disconnectLay.disImg.setImageResource(com.example.ui.R.drawable.disconnect)
                         disconnectLay.disTxt.text = getString(com.example.ui.R.string.checkInternet)
                     }
+
                     else -> {}
                 }
-            }else{
-                disconnected.setVisibility(false,detailContent)
+            } else {
+                disconnected.setVisibility(false, detailContent)
             }
         }
     }

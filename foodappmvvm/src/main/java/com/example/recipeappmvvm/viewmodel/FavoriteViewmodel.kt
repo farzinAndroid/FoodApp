@@ -4,24 +4,23 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipeappmvvm.data.model.database.FoodEntity
-import com.example.recipeappmvvm.data.model.remote.MyResponse
-import com.example.recipeappmvvm.data.model.remote.ResponseFoodList
-import com.example.recipeappmvvm.data.repository.DetailRepository
+import com.example.recipeappmvvm.data.repository.FavoriteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class DetailViewmodel @Inject constructor(private val repository: DetailRepository) : ViewModel() {
+class FavoriteViewmodel @Inject constructor(private val repository: FavoriteRepository) : ViewModel() {
 
-    val foodDetails = MutableLiveData<MyResponse<ResponseFoodList>>()
-    fun getFoodDetails(foodId: Int) = viewModelScope.launch(Dispatchers.IO) {
-        repository.getFoodDetail(foodId).collect {
-            foodDetails.postValue(it)
+
+
+    val favoriteFoodList = MutableLiveData<List<FoodEntity>>()
+    fun getFavoriteFoodsList() = viewModelScope.launch(Dispatchers.IO) {
+        repository.getAllFoods().collect {
+            favoriteFoodList.postValue(it)
         }
     }
-
 
     fun saveFood(foodEntity: FoodEntity) = viewModelScope.launch(Dispatchers.IO) {
         repository.saveFood(foodEntity)
@@ -32,15 +31,13 @@ class DetailViewmodel @Inject constructor(private val repository: DetailReposito
         repository.deleteFood(foodEntity)
     }
 
+
     val isFoodExists = MutableLiveData<Boolean>()
     fun isFoodExists(id: Int) = viewModelScope.launch(Dispatchers.IO) {
         repository.isFoodExist(id).collect {
             isFoodExists.postValue(it)
         }
     }
-
-
-
 
 
 }
