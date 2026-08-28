@@ -13,6 +13,7 @@ import com.example.recipeappmvvm.R
 import com.example.recipeappmvvm.databinding.FragmentFavoriteBinding
 import com.example.recipeappmvvm.databinding.FragmentHomeBinding
 import com.example.recipeappmvvm.ui.home.HomeFragmentDirections
+import com.example.recipeappmvvm.utils.setVisibility
 import com.example.recipeappmvvm.viewmodel.FavoriteViewmodel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -45,17 +46,14 @@ class FavoriteFragment : Fragment() {
         binding?.apply {
 
             favoriteViewmodel.getFavoriteFoodsList()
-            favoriteViewmodel.favoriteFoodList.observe(viewLifecycleOwner){list->
-                if (list.isNotEmpty()){
-                    favoriteAdapter.setData(list)
-                    favList.visibility = View.VISIBLE
-                    emptyListLay.visibility = View.GONE
+            favoriteViewmodel.favoriteFoodList.observe(viewLifecycleOwner){myResponse->
+                if (myResponse.data!!.isNotEmpty()){
+                    favoriteAdapter.setData(myResponse.data)
                     favList.adapter = favoriteAdapter
                     favList.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
-
+                    emptyListLay.setVisibility(false,favList)
                 }else{
-                    favList.visibility = View.GONE
-                    emptyListLay.visibility = View.VISIBLE
+                    emptyListLay.setVisibility(true,favList)
                 }
 
             }

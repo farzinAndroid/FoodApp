@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.devtools.ksp")
-    id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
     id("androidx.navigation.safeargs")
 }
@@ -61,8 +60,8 @@ dependencies {
     annotationProcessor("androidx.room:room-compiler:2.6.1")
     //Dagger - Hilt
     implementation("com.google.dagger:hilt-android:2.52")
-    kapt("com.google.dagger:hilt-compiler:2.52")
-    kapt("androidx.hilt:hilt-compiler:1.2.0")
+    ksp("com.google.dagger:hilt-compiler:2.52")
+    ksp("androidx.hilt:hilt-compiler:1.2.0")
     //RxJava
     implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
     implementation("io.reactivex.rxjava3:rxjava:3.1.8")
