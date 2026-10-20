@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.foodappmvi.data.repository.HomeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,7 +38,7 @@ class HomeViewmodel @Inject constructor(private val homeRepository: HomeReposito
         }
     }
 
-    private fun searchFoods(search: String) = viewModelScope.launch {
+    private fun searchFoods(search: String) = viewModelScope.launch(Dispatchers.IO) {
         try {
             _state.emit(HomeState.ShowLoadingFoods)
             val response = homeRepository.searchFoodList(search)
@@ -65,7 +66,7 @@ class HomeViewmodel @Inject constructor(private val homeRepository: HomeReposito
         }
     }
 
-    private fun loadFoodsByLetter(letter: String) = viewModelScope.launch {
+    private fun loadFoodsByLetter(letter: String) = viewModelScope.launch(Dispatchers.IO) {
         try {
             _state.emit(HomeState.ShowLoadingFoods)
             val response = homeRepository.getFoodListByLetter(letter)
@@ -93,7 +94,7 @@ class HomeViewmodel @Inject constructor(private val homeRepository: HomeReposito
         }
     }
 
-    private fun loadFoodsByCategory(category: String) = viewModelScope.launch {
+    private fun loadFoodsByCategory(category: String) = viewModelScope.launch(Dispatchers.IO) {
         try {
             _state.emit(HomeState.ShowLoadingFoods)
             val response = homeRepository.getFoodsByCategory(category)
@@ -121,7 +122,7 @@ class HomeViewmodel @Inject constructor(private val homeRepository: HomeReposito
         }
     }
 
-    private fun loadCategoriesList() = viewModelScope.launch {
+    private fun loadCategoriesList() = viewModelScope.launch(Dispatchers.IO) {
         try {
             _state.emit(HomeState.ShowLoadingCategory)
             val response = homeRepository.getCategoriesFoodList()
@@ -147,7 +148,7 @@ class HomeViewmodel @Inject constructor(private val homeRepository: HomeReposito
         }
     }
 
-    private fun loadRandomFoods() = viewModelScope.launch {
+    private fun loadRandomFoods() = viewModelScope.launch(Dispatchers.IO) {
         try {
             val response = homeRepository.getRandomFood()
             when (response.code()) {
